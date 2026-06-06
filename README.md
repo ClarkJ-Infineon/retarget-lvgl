@@ -248,6 +248,26 @@ retarget-lvgl/
 | CM33 printf not showing | IPC not configured | Add `RETARGET_LVGL_IPC_ENABLED` define |
 | Build error: GFXSS symbols | BSP missing GFXSS config | See docs/device-configurator-setup.md |
 | Garbled display | MPU not configured for gfx_mem | Ensure SOCMEM gfx_mem is non-cacheable |
+| ANSI escapes not processed | stdio line-buffering | `retarget_lvgl_init()` sets unbuffered mode automatically since v1.1 |
+| printf without `\n` not displayed | stdio line-buffering on older builds | Add `setvbuf(stdout, NULL, _IONBF, 0)` before first printf |
+
+## Test Hooks (Verification API)
+
+For integration tests, these functions query the internal text buffer state:
+
+```c
+uint32_t retarget_lvgl_get_text_len(void);   /* Current character count */
+uint32_t retarget_lvgl_get_line_count(void);  /* Number of \n characters */
+const char *retarget_lvgl_get_text(void);     /* Raw text buffer pointer */
+```
+
+Example test pattern (using UART tee for serial verification):
+```c
+printf("Hello\n");
+vTaskDelay(pdMS_TO_TICKS(100));  /* Wait for drain timer */
+uint32_t len = retarget_lvgl_get_text_len();
+printf("[TEST:len=%lu:%s]\n", (unsigned long)len, len > 0 ? "PASS" : "FAIL");
+```
 
 ## License
 
