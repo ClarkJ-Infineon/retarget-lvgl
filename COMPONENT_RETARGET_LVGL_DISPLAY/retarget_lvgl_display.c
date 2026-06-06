@@ -338,6 +338,33 @@ lv_obj_t *retarget_lvgl_get_label(void)
     return terminal_label;
 }
 
+uint32_t retarget_lvgl_get_text_len(void)
+{
+    return text_len;
+}
+
+uint32_t retarget_lvgl_get_line_count(void)
+{
+    uint32_t count = 0;
+    for (uint32_t i = 0; i < text_len; i++)
+    {
+        if (text_buf[i] == '\n')
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+const char *retarget_lvgl_get_text(void)
+{
+    if (terminal_label == NULL)
+    {
+        return NULL;
+    }
+    return (const char *)text_buf;
+}
+
 /*******************************************************************************
  * _write() Override — captures CM55 printf (same-core mode)
  ******************************************************************************/
