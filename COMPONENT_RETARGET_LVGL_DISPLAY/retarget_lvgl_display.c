@@ -287,6 +287,11 @@ static void lvgl_drain_timer_cb(lv_timer_t *timer)
 
 void retarget_lvgl_init(lv_obj_t *parent)
 {
+    /* Ensure stdout is unbuffered — without retarget-io, newlib defaults to
+     * line-buffered stdout which prevents no-newline printf from reaching
+     * _write() immediately. Required for ANSI escape sequences to work. */
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     text_buf[0] = '\0';
     text_len = 0;
 
